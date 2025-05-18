@@ -10,6 +10,18 @@ macOS     x86_64 JIT / arm64 non-JIT
 Linux x86 x86_64 JIT / arm64 non-JIT
 MinGW x86        JIT
 ```
+
+### Quick Build on macOS
+
+Run `build_macemu.sh` to automatically install dependencies with Homebrew,
+clone this repository if needed, and build both BasiliskII and SheepShaver.
+After running the script, the applications can be found in:
+
+```
+BasiliskII/src/MacOSX/build/Release/BasiliskII.app
+SheepShaver/src/MacOSX/build/Release/SheepShaver.app
+```
+
 ### How To Build
 These builds need to be installed SDL2.0.14+ framework/library.
 
