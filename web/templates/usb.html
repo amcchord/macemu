@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}USB Management - Mac OS 9 Emulator{% endblock %}
+
+{% block content %}
+<h2 style="font-size: 14px; margin-bottom: 15px;">USB Device Management</h2>
+
+{% if not running %}
+<div class="alert alert-error">
+    Emulator is not running. USB devices can only be attached/detached while the emulator is running.
+</div>
+{% endif %}
+
+<div class="info-box">
+    <h3>Available USB Devices</h3>
+    <p style="font-size: 11px; color: #666; margin-bottom: 10px;">
+        These are USB devices connected to the host system. Click Attach to pass them through to Mac OS 9.
+    </p>
+    <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid var(--mac-border);">
+                <th style="text-align: left; padding: 8px;">Device</th>
+                <th style="text-align: left; padding: 8px;">ID</th>
+                <th style="text-align: left; padding: 8px;">Bus/Dev</th>
+                <th style="text-align: left; padding: 8px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr style="border-bottom: 1px solid var(--mac-border);">
+                <td style="padding: 8px;">{{ device.name }}</td>
+                <td style="padding: 8px; font-family: monospace;">{{ device.id }}</td>
+                <td style="padding: 8px;">{{ device.bus }}:{{ device.device }}</td>
+                <td style="padding: 8px;">
+                    {% if running %}
+                    <button class="btn btn-success" onclick="attachUSB('{{ device.vendor_id }}', '{{ device.product_id }}')" style="padding: 4px 8px; font-size: 11px;">Attach</button>
+                    <button class="btn btn-danger" onclick="detachUSB('{{ device.vendor_id }}', '{{ device.product_id }}')" style="padding: 4px 8px; font-size: 11px;">Detach</button>
+                    {% else %}
+                    <span style="color: #999;">Emulator stopped</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not devices %}
+            <tr>
+                <td colspan="4" style="padding: 20px; text-align: center; color: #666;">No USB devices detected</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="info-box">
+    <h3>USB Passthrough Notes</h3>
+    <ul style="font-size: 11px; color: #666; margin-left: 20px;">
+        <li>USB passthrough requires appropriate permissions on the host system</li>
+        <li>Some devices may not be compatible with Mac OS 9</li>
+        <li>Storage devices (USB drives) work best with Mac OS 9</li>
+        <li>Attached devices will be disconnected from the host while in use by the emulator</li>
+    </ul>
+</div>
+
+<div class="controls">
+    <button class="btn" onclick="location.reload()">Refresh Device List</button>
+</div>
+
+<script>
+function attachUSB(vendorId, productId) {
+    fetch('/api/usb/attach', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({vendor_id: vendorId, product_id: productId})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('USB device attached successfully!');
+        } else {
+            alert('Error attaching device: ' + data.error);
+        }
+    });
+}
+
+function detachUSB(vendorId, productId) {
+    fetch('/api/usb/detach', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({vendor_id: vendorId, product_id: productId})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('USB device detached successfully!');
+        } else {
+            alert('Error detaching device: ' + data.error);
+        }
+    });
+}
+</script>
+{% endblock %}
+

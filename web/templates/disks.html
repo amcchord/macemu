@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Disk Management - Mac OS 9 Emulator{% endblock %}
+
+{% block content %}
+<h2 style="font-size: 14px; margin-bottom: 15px;">Disk Management</h2>
+
+<div class="info-box">
+    <h3>Create New Disk</h3>
+    <form id="createDiskForm" onsubmit="createDisk(event)">
+        <div class="form-group">
+            <label for="disk_name">Disk Name:</label>
+            <input type="text" id="disk_name" name="disk_name" placeholder="mydisk.qcow2" required>
+        </div>
+        <div class="form-group">
+            <label for="disk_size">Size:</label>
+            <select id="disk_size" name="disk_size">
+                <option value="1G">1 GB</option>
+                <option value="2G">2 GB</option>
+                <option value="5G">5 GB</option>
+                <option value="10G" selected>10 GB</option>
+                <option value="20G">20 GB</option>
+                <option value="50G">50 GB</option>
+                <option value="100G">100 GB</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Create Disk</button>
+    </form>
+</div>
+
+<div class="info-box">
+    <h3>Existing Disks</h3>
+    <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+        <thead>
+            <tr style="border-bottom: 2px solid var(--mac-border);">
+                <th style="text-align: left; padding: 8px;">Name</th>
+                <th style="text-align: left; padding: 8px;">Virtual Size</th>
+                <th style="text-align: left; padding: 8px;">Actual Size</th>
+                <th style="text-align: left; padding: 8px;">Status</th>
+                <th style="text-align: left; padding: 8px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for disk in disks %}
+            <tr style="border-bottom: 1px solid var(--mac-border);">
+                <td style="padding: 8px;">{{ disk.name }}</td>
+                <td style="padding: 8px;">{{ disk.virtual_size }}</td>
+                <td style="padding: 8px;">{{ disk.actual_size }}</td>
+                <td style="padding: 8px;">
+                    {% if disk.name == config.PRIMARY_DISK %}
+                        <span style="color: green;">Primary</span>
+                    {% elif disk.name == config.SECONDARY_DISK %}
+                        <span style="color: blue;">Secondary</span>
+                    {% else %}
+                        <span style="color: #666;">Not attached</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 8px;">
+                    {% if disk.name != config.PRIMARY_DISK and disk.name != config.SECONDARY_DISK %}
+                        <button class="btn btn-danger" onclick="deleteDisk('{{ disk.name }}')" style="padding: 4px 8px; font-size: 11px;">Delete</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not disks %}
+            <tr>
+                <td colspan="5" style="padding: 20px; text-align: center; color: #666;">No disk images found</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="info-box">
+    <h3>Disk Assignment</h3>
+    <p style="font-size: 11px; color: #666; margin-bottom: 10px;">
+        To assign disks to the emulator, go to the <a href="/config">Configuration</a> page.
+        Changes require an emulator restart to take effect.
+    </p>
+</div>
+
+<script>
+function createDisk(e) {
+    e.preventDefault();
+    var name = document.getElementById('disk_name').value;
+    var size = document.getElementById('disk_size').value;
+    
+    fetch('/api/disks/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name, size: size})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Disk created successfully!');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
+}
+
+function deleteDisk(name) {
+    if (!confirm('Are you sure you want to delete ' + name + '? This cannot be undone!')) {
+        return;
+    }
+    
+    fetch('/api/disks/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name: name})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
+}
+</script>
+{% endblock %}
+

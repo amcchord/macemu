@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration - Mac OS 9 Emulator{% endblock %}
+
+{% block content %}
+<h2 style="font-size: 14px; margin-bottom: 15px;">Emulator Configuration</h2>
+
+{% if saved %}
+<div class="alert alert-success">
+    Configuration saved successfully! Restart the emulator to apply changes.
+</div>
+{% endif %}
+
+<form method="POST" action="/config">
+    <div class="info-box">
+        <h3>Memory Settings</h3>
+        <div class="form-group">
+            <label for="ram_mb">RAM (MB):</label>
+            <select name="ram_mb" id="ram_mb">
+                <option value="128" {% if config.RAM_MB == '128' %}selected{% endif %}>128 MB</option>
+                <option value="256" {% if config.RAM_MB == '256' %}selected{% endif %}>256 MB</option>
+                <option value="512" {% if config.RAM_MB == '512' %}selected{% endif %}>512 MB</option>
+                <option value="768" {% if config.RAM_MB == '768' %}selected{% endif %}>768 MB</option>
+                <option value="1024" {% if config.RAM_MB == '1024' %}selected{% endif %}>1024 MB</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="info-box">
+        <h3>Boot Settings</h3>
+        <div class="form-group">
+            <label for="boot_device">Boot Device:</label>
+            <select name="boot_device" id="boot_device">
+                <option value="d" {% if config.BOOT_DEVICE == 'd' %}selected{% endif %}>CD-ROM (for installation)</option>
+                <option value="c" {% if config.BOOT_DEVICE == 'c' %}selected{% endif %}>Hard Disk (after installation)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="info-box">
+        <h3>Display Settings</h3>
+        <div class="form-group">
+            <label for="screen_width">Screen Width:</label>
+            <input type="number" name="screen_width" id="screen_width" value="{{ config.SCREEN_WIDTH }}" min="640" max="1920">
+        </div>
+        <div class="form-group">
+            <label for="screen_height">Screen Height:</label>
+            <input type="number" name="screen_height" id="screen_height" value="{{ config.SCREEN_HEIGHT }}" min="480" max="1200">
+        </div>
+    </div>
+    
+    <div class="info-box">
+        <h3>Storage Settings</h3>
+        <div class="form-group">
+            <label for="primary_disk">Primary Hard Disk:</label>
+            <select name="primary_disk" id="primary_disk">
+                <option value="">-- None --</option>
+                {% for disk in disks %}
+                <option value="{{ disk.name }}" {% if config.PRIMARY_DISK == disk.name %}selected{% endif %}>{{ disk.name }} ({{ disk.virtual_size }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="secondary_disk">Secondary Hard Disk:</label>
+            <select name="secondary_disk" id="secondary_disk">
+                <option value="">-- None --</option>
+                {% for disk in disks %}
+                <option value="{{ disk.name }}" {% if config.SECONDARY_DISK == disk.name %}selected{% endif %}>{{ disk.name }} ({{ disk.virtual_size }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cdrom_iso">CD-ROM ISO:</label>
+            <select name="cdrom_iso" id="cdrom_iso">
+                <option value="">-- None --</option>
+                {% for iso in isos %}
+                <option value="{{ iso.name }}" {% if config.CDROM_ISO == iso.name %}selected{% endif %}>{{ iso.name }} ({{ iso.size }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <p style="font-size: 11px; color: #666; margin-top: 10px;">
+            <a href="/disks">Manage disk images</a>
+        </p>
+    </div>
+    
+    <div class="info-box">
+        <h3>Audio Settings</h3>
+        <div class="form-group">
+            <label for="sound_enabled">Sound:</label>
+            <select name="sound_enabled" id="sound_enabled">
+                <option value="0" {% if config.SOUND_ENABLED == '0' %}selected{% endif %}>Disabled</option>
+                <option value="1" {% if config.SOUND_ENABLED == '1' %}selected{% endif %}>Enabled</option>
+            </select>
+        </div>
+    </div>
+    
+    <input type="hidden" name="vnc_display" value="{{ config.VNC_DISPLAY }}">
+    
+    <div class="controls">
+        <button type="submit" class="btn btn-success">Save Configuration</button>
+        <a href="/config" class="btn">Reset</a>
+    </div>
+</form>
+{% endblock %}

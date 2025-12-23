@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Screenshot - Mac OS 9 Emulator{% endblock %}
+
+{% block content %}
+<h2 style="font-size: 14px; margin-bottom: 15px;">Display Screenshot</h2>
+
+<div class="controls" style="margin-bottom: 15px;">
+    <button class="btn btn-success" onclick="takeScreenshot()">Take Screenshot</button>
+    <button class="btn" onclick="refreshScreenshot()">Refresh</button>
+</div>
+
+<div class="screenshot-container">
+    <img id="screenshot" src="/api/screenshot/latest" alt="Emulator Screenshot" 
+         onerror="this.style.display='none'; document.getElementById('no-screenshot').style.display='block';">
+    <p id="no-screenshot" style="color: #999; padding: 40px; display: none;">
+        No screenshot available. Click "Take Screenshot" to capture the current display.
+    </p>
+</div>
+
+<p style="font-size: 11px; color: #666; margin-top: 10px;">
+    Screenshots are captured from the emulator's VNC display.
+</p>
+
+<script>
+function takeScreenshot() {
+    fetch('/api/screenshot', {method: 'POST'})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                refreshScreenshot();
+            } else {
+                alert('Error taking screenshot: ' + data.error);
+            }
+        });
+}
+
+function refreshScreenshot() {
+    var img = document.getElementById('screenshot');
+    img.style.display = 'block';
+    document.getElementById('no-screenshot').style.display = 'none';
+    img.src = '/api/screenshot/latest?' + new Date().getTime();
+}
+</script>
+{% endblock %}

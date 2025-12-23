@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mac OS 9 Emulator{% endblock %}
+
+{% block content %}
+<h2 style="font-size: 14px; margin-bottom: 15px;">System Status</h2>
+
+<div class="info-box">
+    <h3>Emulator Status</h3>
+    <div class="info-row">
+        <span>Status:</span>
+        <span>
+            <span class="status-indicator {% if running %}status-running{% else %}status-stopped{% endif %}"></span>
+            {% if running %}Running{% else %}Stopped{% endif %}
+        </span>
+    </div>
+    <div class="info-row">
+        <span>Memory:</span>
+        <span>{{ config.RAM_MB }} MB</span>
+    </div>
+    <div class="info-row">
+        <span>Boot Device:</span>
+        <span>{% if config.BOOT_DEVICE == 'd' %}CD-ROM{% else %}Hard Disk{% endif %}</span>
+    </div>
+    <div class="info-row">
+        <span>Resolution:</span>
+        <span>{{ config.SCREEN_WIDTH }}x{{ config.SCREEN_HEIGHT }}</span>
+    </div>
+</div>
+
+<div class="controls">
+    {% if running %}
+        <button class="btn btn-danger" onclick="controlEmulator('stop')">Stop Emulator</button>
+        <button class="btn" onclick="controlEmulator('reset')">Reset</button>
+        <button class="btn" onclick="controlEmulator('pause')">Pause</button>
+        <button class="btn" onclick="controlEmulator('resume')">Resume</button>
+    {% else %}
+        <button class="btn btn-success" onclick="restartEmulator()">Start Emulator</button>
+    {% endif %}
+    <button class="btn" onclick="location.reload()">Refresh Status</button>
+</div>
+
+<div class="info-box" style="margin-top: 20px;">
+    <h3>Quick Info</h3>
+    <p style="font-size: 12px; line-height: 1.6;">
+        This control panel allows you to manage the Mac OS 9 emulator running on this system.
+        Use the Configuration page to adjust RAM and boot settings.
+        Use the Screenshot page to view the current display.
+    </p>
+    <p style="font-size: 12px; margin-top: 10px;">
+        <strong>First time setup:</strong> Boot from CD-ROM to install Mac OS 9, then change boot device to Hard Disk.
+    </p>
+</div>
+
+<script>
+function controlEmulator(action) {
+    fetch('/api/control/' + action, {method: 'POST'})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+}
+
+function restartEmulator() {
+    fetch('/api/restart', {method: 'POST'})
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                setTimeout(() => location.reload(), 3000);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mac OS 9 Emulator{% endblock %}</title>
+    <style>
+        :root {
+            --mac-grey: #BDBDBD;
+            --mac-dark: #666666;
+            --mac-light: #E8E8E8;
+            --mac-blue: #3366CC;
+            --mac-border: #999999;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: "Chicago", "Charcoal", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, var(--mac-grey) 0%, var(--mac-light) 100%);
+            min-height: 100vh;
+            color: #000;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--mac-grey) 100%);
+            border: 2px solid var(--mac-border);
+            border-radius: 8px 8px 0 0;
+            padding: 10px 20px;
+            margin-bottom: 0;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        
+        header h1 {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 1px 1px 0 #fff;
+        }
+        
+        .window {
+            background: var(--mac-light);
+            border: 2px solid var(--mac-border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        nav {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        nav a, .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(180deg, #FFFFFF 0%, var(--mac-grey) 100%);
+            border: 2px solid var(--mac-border);
+            border-radius: 6px;
+            color: #000;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+        
+        nav a:hover, .btn:hover {
+            background: linear-gradient(180deg, #FFFFFF 0%, #CCCCCC 100%);
+        }
+        
+        nav a:active, .btn:active {
+            background: linear-gradient(180deg, var(--mac-grey) 0%, #FFFFFF 100%);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        nav a.active {
+            background: var(--mac-blue);
+            color: #fff;
+            border-color: #2255AA;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(180deg, #FF6666 0%, #CC3333 100%);
+            color: #fff;
+            border-color: #AA2222;
+        }
+        
+        .btn-success {
+            background: linear-gradient(180deg, #66CC66 0%, #33AA33 100%);
+            color: #fff;
+            border-color: #228822;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 1px solid #666;
+        }
+        
+        .status-running {
+            background: #33CC33;
+            box-shadow: 0 0 6px #33CC33;
+        }
+        
+        .status-stopped {
+            background: #CC3333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+            border: 2px solid var(--mac-border);
+            border-radius: 4px;
+            font-size: 12px;
+            background: #fff;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--mac-blue);
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 2px solid;
+        }
+        
+        .alert-success {
+            background: #D4EDDA;
+            border-color: #28A745;
+            color: #155724;
+        }
+        
+        .alert-error {
+            background: #F8D7DA;
+            border-color: #DC3545;
+            color: #721C24;
+        }
+        
+        .screenshot-container {
+            background: #000;
+            border: 3px solid var(--mac-dark);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .screenshot-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #333;
+        }
+        
+        .info-box {
+            background: #fff;
+            border: 2px solid var(--mac-border);
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box h3 {
+            font-size: 12px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--mac-border);
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 12px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--mac-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ Mac OS 9 Emulator Control Panel</h1>
+        </header>
+        <div class="window">
+            <nav>
+                <a href="/" class="{% if request.endpoint == 'index' %}active{% endif %}">Dashboard</a>
+                <a href="/config" class="{% if request.endpoint == 'config_page' %}active{% endif %}">Configuration</a>
+                <a href="/disks" class="{% if request.endpoint == 'disks_page' %}active{% endif %}">Disks</a>
+                <a href="/usb" class="{% if request.endpoint == 'usb_page' %}active{% endif %}">USB</a>
+                <a href="/screenshot" class="{% if request.endpoint == 'screenshot' %}active{% endif %}">Screenshot</a>
+            </nav>
+            
+            {% block content %}{% endblock %}
+        </div>
+        <footer>
+            Mac OS 9 Emulator Control Panel • QEMU PPC
+        </footer>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
