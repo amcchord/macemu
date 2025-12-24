@@ -48,19 +48,26 @@ QEMU_ARGS="$QEMU_ARGS -prom-env 'auto-boot?=true'"
 QEMU_ARGS="$QEMU_ARGS -prom-env 'boot-command=mac-boot'"
 QEMU_ARGS="$QEMU_ARGS -prom-env 'diag-switch?=false'"
 
-# Primary disk
+# IDE drive index counter
+IDE_INDEX=0
+
+# Primary disk on IDE0 (required for Mac OS to boot properly)
 if [ -n "$PRIMARY_DISK" ] && [ -f "$MACEMU_DIR/disk/$PRIMARY_DISK" ]; then
-    QEMU_ARGS="$QEMU_ARGS -drive file=$MACEMU_DIR/disk/$PRIMARY_DISK,format=qcow2,media=disk"
+    QEMU_ARGS="$QEMU_ARGS -drive file=$MACEMU_DIR/disk/$PRIMARY_DISK,format=qcow2,media=disk,if=ide,index=$IDE_INDEX"
+    IDE_INDEX=$((IDE_INDEX + 1))
 fi
 
-# Secondary disk (optional)
+# Secondary disk (optional) on next IDE index
 if [ -n "$SECONDARY_DISK" ] && [ -f "$MACEMU_DIR/disk/$SECONDARY_DISK" ]; then
-    QEMU_ARGS="$QEMU_ARGS -drive file=$MACEMU_DIR/disk/$SECONDARY_DISK,format=qcow2,media=disk"
+    QEMU_ARGS="$QEMU_ARGS -drive file=$MACEMU_DIR/disk/$SECONDARY_DISK,format=qcow2,media=disk,if=ide,index=$IDE_INDEX"
+    IDE_INDEX=$((IDE_INDEX + 1))
 fi
 
-# CD-ROM ISO (optional)
+# CD-ROM ISO on next available IDE index
+# Note: For Mac OS 9 installation, CD-ROM typically needs to be on IDE1
 if [ -n "$CDROM_ISO" ] && [ -f "$MACEMU_DIR/iso/$CDROM_ISO" ]; then
-    QEMU_ARGS="$QEMU_ARGS -drive file=$MACEMU_DIR/iso/$CDROM_ISO,format=raw,media=cdrom"
+    # If no hard disk, CD-ROM goes on IDE0; otherwise use current index
+    QEMU_ARGS="$QEMU_ARGS -drive file=$MACEMU_DIR/iso/$CDROM_ISO,format=raw,media=cdrom,if=ide,index=$IDE_INDEX"
 fi
 QEMU_ARGS="$QEMU_ARGS -device usb-mouse -device usb-kbd"
 QEMU_ARGS="$QEMU_ARGS -vnc :$VNC_DISPLAY"
