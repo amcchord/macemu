@@ -1,0 +1,24 @@
+# Disk images
+*.qcow2
+*.img
+*.dmg
+*.iso
+
+# ROM archives (keep individual ROMs for reference)
+*.zip
+
+# Large binary files
+*.tar
+*.tar.gz
+*.tgz
+
+# Runtime files
+*.log
+*.pid
+__pycache__/
+*.pyc
+
+# Temporary files
+*.tmp
+*.bak
+
